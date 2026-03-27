@@ -7,15 +7,15 @@
   <!--
     SECURITY HEADERS (GitHub Pages = static host, no server headers possible)
     Meta CSP is the best available control for static sites.
-    - no inline scripts (all JS in invoice.js)
-    - no external scripts / CDNs
+    - script-src: only 'self' + cdnjs (html2canvas + jsPDF) with SRI hash verification
+    - no inline scripts
     - images: only same-origin + data: URIs (for signature preview)
     - no form submission
     - no framing (clickjacking protection)
     - no referrer leakage
   -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; form-action 'none'; base-uri 'self'; frame-ancestors 'none';">
+        content="default-src 'none'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; form-action 'none'; base-uri 'self'; frame-ancestors 'none';">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
@@ -27,7 +27,7 @@
 <body>
 
   <div class="actions no-print">
-    <button class="btn btn-print" id="btnPrint">&#128438; Print / Save PDF</button>
+    <button class="btn btn-pdf" id="btnPdf">&#11015; Download PDF</button>
   </div>
 
   <div class="invoice-wrapper" id="invoiceWrapper">
@@ -221,6 +221,13 @@
 
   </div><!-- /invoice-wrapper -->
 
+  <!-- html2canvas + jsPDF for pixel-perfect PDF download (SRI integrity verified) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+          integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+          integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="invoice.js"></script>
 </body>
 </html>
