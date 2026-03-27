@@ -282,9 +282,9 @@
   /* ── Init ── */
   document.addEventListener('DOMContentLoaded', function () {
 
-    // Print button
-    document.getElementById('btnPrint').addEventListener('click', function () {
-      window.print();
+    // PDF Download button
+    document.getElementById('btnPdf').addEventListener('click', function () {
+      generatePDF();
     });
 
     // Add item row button
@@ -306,5 +306,77 @@
     for (let i = 0; i < INIT_HSN_ROWS;  i++) addHsnRow();
 
   });
+
+  /* ── Generate and download PDF ── */
+  function generatePDF() {
+    const btn = document.getElementById('btnPdf');
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+
+    // Temporarily show the print-only signature image
+    const signPrint = document.getElementById('signPrint');
+    const signArea  = document.getElementById('signArea');
+    const signClear = document.getElementById('signClearBtn');
+    const addBtns   = document.querySelectorAll('.no-print');
+
+    // Hide all no-print elements
+    addBtns.forEach(function (el) { el.style.visibility = 'hidden'; });
+    signPrint.style.display = signPrint.src ? 'block' : 'none';
+
+    const wrapper = document.getElementById('invoiceWrapper');
+
+    html2canvas(wrapper, {
+      scale: 2,           // 2x for crisp text
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      windowWidth: wrapper.scrollWidth,
+      windowHeight: wrapper.scrollHeight
+    }).then(function (canvas) {
+
+      // Restore visibility
+      addBtns.forEach(function (el) { el.style.visibility = ''; });
+
+      // A4 dimensions in mm
+      const PDF_W = 210;
+      const PDF_H = 297;
+
+      const imgW  = canvas.width;
+      const imgH  = canvas.height;
+
+      // Scale to fit A4 width, then calculate height
+      const ratio    = PDF_W / (imgW / 2 * 0.264583); // px to mm at 96dpi
+      const pdfImgW  = PDF_W;
+      const pdfImgH  = (imgH / 2 * 0.264583);         // actual mm height
+
+      // jsPDF — portrait A4
+      /* global jspdf */
+      const { jsPDF } = jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.98);
+
+      // If content is taller than one page, scale to fit
+      const finalH = Math.min(pdfImgH, PDF_H);
+      const finalW = (pdfImgH > PDF_H) ? PDF_W * (PDF_H / pdfImgH) : PDF_W;
+      const offsetX = (PDF_W - finalW) / 2;
+
+      doc.addImage(dataUrl, 'JPEG', offsetX, 0, finalW, finalH);
+
+      // Get invoice number for filename
+      const invNo = (document.getElementById('invoiceNo').value || 'invoice').replace(/[^a-zA-Z0-9_-]/g, '_');
+      doc.save('invoice_' + invNo + '.pdf');
+
+      btn.disabled = false;
+      btn.textContent = '\u2B07 Download PDF';
+
+    }).catch(function (err) {
+      console.error('PDF generation failed:', err);
+      alert('PDF generation failed. Please try again.');
+      addBtns.forEach(function (el) { el.style.visibility = ''; });
+      btn.disabled = false;
+      btn.textContent = '\u2B07 Download PDF';
+    });
+  }
 
 })(); // IIFE — nothing leaks to global scope
