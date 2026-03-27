@@ -12,21 +12,11 @@ body {
   min-height: 100vh;
 }
 
-/* ── Print / No-Print ── */
-.no-print { }
-.print-only { display: none; }
-
+/* ── Print (fallback only, PDF download is primary) ── */
 @media print {
   body { background: #fff; padding: 0; }
   .no-print { display: none !important; }
-  .print-only { display: block !important; }
   .invoice-wrapper { border: 1px solid #000; width: 100%; box-shadow: none; }
-  .editable:focus { background: transparent !important; border-bottom: none !important; }
-  #signPrint { display: block !important; }
-  .items-header { grid-template-columns: 40px 1fr 80px 60px 80px 70px 90px !important; }
-  .item-row    { grid-template-columns: 40px 1fr 80px 60px 80px 70px 90px !important; }
-  .hsn-header  { grid-template-columns: 1fr 120px 1fr 1fr 1fr 1fr !important; }
-  .hsn-row     { grid-template-columns: 1fr 120px 1fr 1fr 1fr 1fr !important; }
 }
 
 /* ── Action bar ── */
@@ -45,6 +35,9 @@ body {
 
 .btn-print { background: #1a1a1a; color: #fff; }
 .btn-print:hover { background: #333; }
+.btn-pdf { background: #1a6b2e; color: #fff; }
+.btn-pdf:hover { background: #145724; }
+.btn-pdf:disabled { background: #888; cursor: not-allowed; }
 
 /* ── Invoice wrapper ── */
 .invoice-wrapper {
